@@ -1,95 +1,190 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import { gsap } from 'gsap';
+import styles from './page.module.css';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+import { motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+
+const transition = { duration: 1.6, ease: [0.6, 0.08, 0.12, 1] };
+const transition2 = { duration: 1, ease: [0.43, 0.13, 0.23, 0.96] };
+
+const titleItem = {
+	initial: {
+		y: 0,
+	},
+	animate: {
+		y: 0,
+		transition: {
+			staggerChildren: 0.04,
+			staggerDirection: 1,
+		},
+	},
+};
+
+const letter = {
+	initial: {
+		y: '100%',
+	},
+	animate: {
+		y: 0,
+		transition: transition2,
+	},
+};
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+	const mItemFirst = useRef(null);
+	const mItemSecond = useRef(null);
+	const slider = useRef(null);
+	const main = useRef();
+	let xPercent = 0;
+	let direction = -1;
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+	useEffect(() => {
+		const ctx = gsap.context(() => {
+			gsap.registerPlugin(ScrollTrigger);
+			gsap.to(slider.current, {
+				scrollTrigger: {
+					trigger: document.documentElement,
+					scrub: 3,
+					start: 0,
+					end: window.innerHeight,
+					onUpdate: (e) => {
+						direction = e.direction * -1;
+					},
+				},
+				x: '-500px',
+			});
+			requestAnimationFrame(animate);
+		}, main.current);
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+		return () => ctx.revert();
+	}, []);
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+	const animate = () => {
+		if (xPercent < -100) {
+			xPercent = 0;
+		} else if (xPercent > 0) {
+			xPercent = -100;
+		}
+		gsap.set(mItemFirst.current, { xPercent: xPercent });
+		gsap.set(mItemSecond.current, { xPercent: xPercent });
+		requestAnimationFrame(animate);
+		xPercent += 0.16 * direction;
+	};
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+	return (
+		<motion.main className={styles.main} ref={main} initial='initial' animate='animate' exit='exit'>
+			<h1 className={styles.title}>
+				<div className={styles.titleItem}>
+					<motion.div className={styles.titleItemInner} variants={titleItem}>
+						<motion.span variants={letter}>n</motion.span>
+						<motion.span variants={letter}>i</motion.span>
+						<motion.span variants={letter}>s</motion.span>
+						<motion.span variants={letter}>h</motion.span>
+						<motion.span variants={letter}>i</motion.span>
+						<motion.span variants={letter}>t</motion.span>
+					</motion.div>
+				</div>
+				<div className={styles.titleItem}>
+					<motion.div className={styles.titleItemInner} variants={titleItem}>
+						<motion.span variants={letter}>s</motion.span>
+						<motion.span variants={letter}>a</motion.span>
+						<motion.span variants={letter}>r</motion.span>
+						<motion.span variants={letter}>v</motion.span>
+						<motion.span variants={letter}>a</motion.span>
+						<motion.span variants={letter}>i</motion.span>
+						<motion.span variants={letter}>y</motion.span>
+						<motion.span variants={letter}>a</motion.span>
+					</motion.div>
+				</div>
+				<div className={styles.titleItem}>
+					<motion.div className={styles.titleItemInner} variants={titleItem} ref={slider}>
+						<span ref={mItemFirst}>
+							<motion.span variants={letter}>c</motion.span>
+							<motion.span variants={letter}>r</motion.span>
+							<motion.span variants={letter}>e</motion.span>
+							<motion.span variants={letter}>a</motion.span>
+							<motion.span variants={letter}>t</motion.span>
+							<motion.span variants={letter}>i</motion.span>
+							<motion.span variants={letter}>v</motion.span>
+							<motion.span variants={letter}>e</motion.span>
+							<span>&nbsp;</span>
+							<motion.span variants={letter}>-</motion.span>
+							<span>&nbsp;</span>
+							<motion.span variants={letter}>f</motion.span>
+							<motion.span variants={letter}>r</motion.span>
+							<motion.span variants={letter}>o</motion.span>
+							<motion.span variants={letter}>n</motion.span>
+							<motion.span variants={letter}>t</motion.span>
+							<motion.span variants={letter}>e</motion.span>
+							<motion.span variants={letter}>n</motion.span>
+							<motion.span variants={letter}>d</motion.span>
+							<span>&nbsp;</span>
+							<motion.span variants={letter}>-</motion.span>
+							<span>&nbsp;</span>
+						</span>
+						<span ref={mItemSecond}>
+							<motion.span variants={letter}>c</motion.span>
+							<motion.span variants={letter}>r</motion.span>
+							<motion.span variants={letter}>e</motion.span>
+							<motion.span variants={letter}>a</motion.span>
+							<motion.span variants={letter}>t</motion.span>
+							<motion.span variants={letter}>i</motion.span>
+							<motion.span variants={letter}>v</motion.span>
+							<motion.span variants={letter}>e</motion.span>
+							<span>&nbsp;</span>
+							<motion.span variants={letter}>-</motion.span>
+							<span>&nbsp;</span>
+							<motion.span variants={letter}>f</motion.span>
+							<motion.span variants={letter}>r</motion.span>
+							<motion.span variants={letter}>o</motion.span>
+							<motion.span variants={letter}>n</motion.span>
+							<motion.span variants={letter}>t</motion.span>
+							<motion.span variants={letter}>e</motion.span>
+							<motion.span variants={letter}>n</motion.span>
+							<motion.span variants={letter}>d</motion.span>
+							<span>&nbsp;</span>
+							<motion.span variants={letter}>-</motion.span>
+							<span>&nbsp;</span>
+						</span>
+					</motion.div>
+				</div>
+				<div className={styles.titleItem}>
+					<motion.div className={styles.titleItemInner} variants={titleItem}>
+						<motion.span variants={letter}>d</motion.span>
+						<motion.span variants={letter}>e</motion.span>
+						<motion.span variants={letter}>v</motion.span>
+						<motion.span variants={letter}>e</motion.span>
+						<motion.span variants={letter}>l</motion.span>
+						<motion.span variants={letter}>o</motion.span>
+						<motion.span variants={letter}>p</motion.span>
+						<motion.span variants={letter}>e</motion.span>
+						<motion.span variants={letter}>r</motion.span>
+					</motion.div>
+				</div>
+			</h1>
+			<div className='container-small'>
+				<div className={styles.content}>
+					<p>
+						Marquee text refers to a scrolling text effect often used on websites to display messages, announcements, or
+						promotional content. This effect involves text moving horizontally (left or right) across a designated area of a
+						webpage. Originally popular in the early days of the web, marquee text has become less common due to design trends
+						favoring cleaner and more user-friendly interfaces. While marquee text can add a dynamic element to a website, its
+						impact on user experience is mixed.
+					</p>
+					<p>
+						On one hand, marquee text can draw attention to important information and help convey a sense of urgency or
+						importance. It&apos;s especially useful for displaying time-sensitive announcements or highlighting limited-time
+						offers. However, the user experience can be negatively affected by marquee text if not implemented carefully.
+						Rapidly scrolling text can be distracting, making it difficult for users to focus on other content on the page.
+						Additionally, continuous motion can create accessibility challenges, as it might be hard to read for individuals
+						with visual impairments or those who struggle with motion sensitivity. As a result, designers should consider the
+						context, content, and user preferences when deciding to use marquee text, striving to strike a balance between its
+						attention-grabbing nature and its potential impact on overall usability.
+					</p>
+				</div>
+			</div>
+		</motion.main>
+	);
 }
